@@ -21,6 +21,8 @@ class VideoExtractor():
     def __init__(self, *args):
         self.url = None
         self.title = None
+        self.author = None
+        self.keywords = None
         self.vid = None
         self.m3u8_url = None
         self.streams = {}
