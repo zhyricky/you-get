@@ -128,7 +128,10 @@ class YouTube(VideoExtractor):
         for video in videos:
             vid = parse_query_param(video, 'v')
             index = parse_query_param(video, 'index')
-            self.__class__().download_by_url(self.__class__.get_url_from_vid(vid), index=index, **kwargs)
+            try:
+                self.__class__().download_by_url(self.__class__.get_url_from_vid(vid), index=index, **kwargs)
+            except:
+                pass
 
     def prepare(self, **kwargs):
         assert self.url or self.vid
@@ -180,7 +183,9 @@ class YouTube(VideoExtractor):
                     ytplayer_config = json.loads(re.search('ytplayer.config\s*=\s*([^\n]+});ytplayer', video_page).group(1))
                 except:
                     msg = re.search('class="message">([^<]+)<', video_page).group(1)
-                    log.wtf('[Failed] "%s"' % msg.strip())
+                    log.wtf('[Failed] "%s"' % msg.strip(), None if 'index' in kwargs else 1)
+                    if 'index' in kwargs:
+                        raise Exception('[Failed] "%s"' % msg.strip())
 
                 if 'title' in ytplayer_config['args']:
                     # 150 Restricted from playback on certain sites
