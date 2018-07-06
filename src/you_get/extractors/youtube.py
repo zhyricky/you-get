@@ -152,7 +152,7 @@ class YouTube(VideoExtractor):
             if 'use_cipher_signature' not in video_info or video_info['use_cipher_signature'] == ['False']:
                 self.title = parse.unquote_plus(video_info['title'][0])
                 self.author = parse.unquote_plus(video_info['author'][0])
-                self.keywords = parse.unquote_plus(video_info['keywords'][0])
+                self.keywords = parse.unquote_plus(video_info['keywords'][0] if video_info.get('keywords') else '')
 
                 # Parse video page (for DASH)
                 video_page = get_content('https://www.youtube.com/watch?v=%s' % self.vid)
@@ -170,9 +170,10 @@ class YouTube(VideoExtractor):
                 video_page = get_content('https://www.youtube.com/watch?v=%s' % self.vid)
                 ytplayer_config = json.loads(re.search('ytplayer.config\s*=\s*([^\n]+?});', video_page).group(1))
 
-                self.title = ytplayer_config['args']['title']
-                self.author = ytplayer_config['args']['author']
-                self.keywords = ytplayer_config['args']['keywords']
+                temp_args = ytplayer_config['args']
+                self.title = temp_args['title']
+                self.author = temp_args['author']
+                self.keywords = temp_args.get('keywords') if 'keywords' in temp_args else ''
                 self.html5player = 'https://www.youtube.com' + ytplayer_config['assets']['js']
                 stream_list = ytplayer_config['args']['url_encoded_fmt_stream_map'].split(',')
 
@@ -190,9 +191,10 @@ class YouTube(VideoExtractor):
                 if 'title' in ytplayer_config['args']:
                     # 150 Restricted from playback on certain sites
                     # Parse video page instead
-                    self.title = ytplayer_config['args']['title']
-                    self.author = ytplayer_config['args']['author']
-                    self.keywords = ytplayer_config['args']['keywords']
+                    temp_args = ytplayer_config['args']
+                    self.title = temp_args['title']
+                    self.author = temp_args['author']
+                    self.keywords = temp_args.get('keywords') if 'keywords' in temp_args else ''
                     self.html5player = 'https://www.youtube.com' + ytplayer_config['assets']['js']
                     stream_list = ytplayer_config['args']['url_encoded_fmt_stream_map'].split(',')
                 else:
